@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, ExternalLink, LogOut, Plus, ShieldCheck, Trash2 } from "lucide-react";
 
-const API_URL = "https://sree22portfolio.onrender.com";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
 export default function AdminPage() {
   const [token, setToken] = useState(null);
@@ -22,7 +22,9 @@ export default function AdminPage() {
   }, [token]);
 
   async function loadProjects(authToken) {
-    const response = await fetch(`${API_URL}/projects`);
+    const response = await fetch(`${API_BASE}/api/projects`, {
+      headers: { Authorization: `Bearer ${authToken}` },
+    });
     if (response.ok) setProjects(await response.json());
   }
 
@@ -31,7 +33,7 @@ export default function AdminPage() {
     setBusy(true);
     setStatus("");
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch(`${API_BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
@@ -54,7 +56,7 @@ export default function AdminPage() {
     setBusy(true);
     setStatus("");
     try {
-      const response = await fetch(`${API_URL}/projects/from-github`, {
+      const response = await fetch(`${API_BASE}/api/projects/from-github`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -76,7 +78,7 @@ export default function AdminPage() {
 
   async function removeProject(id) {
     if (!window.confirm("Remove this project from the portfolio?")) return;
-    const response = await fetch(`${API_URL}/projects/${id}`, {
+    const response = await fetch(`${API_BASE}/api/projects/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
