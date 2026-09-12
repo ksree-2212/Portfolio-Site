@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, ExternalLink, LogOut, Plus, ShieldCheck, Trash2 } from "lucide-react";
 
-const API_URL = "/api/admin";
+const API_URL = "https://sree22portfolio.onrender.com";
 
 export default function AdminPage() {
   const [token, setToken] = useState(null);
