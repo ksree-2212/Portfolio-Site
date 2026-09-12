@@ -246,7 +246,7 @@ export default function AdminPage() {
               <input className="admin-input" aria-label="Live demo URL (optional)" placeholder="Live demo URL (optional)" type="url" value={demoUrl} onChange={(event) => setDemoUrl(event.target.value)} />
               <button className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-signal px-4 py-3 font-medium text-white transition hover:bg-[#6da3ff] disabled:opacity-50" disabled={busy || !repoUrl.trim()}><Plus size={17} /> {busy ? "Importing..." : "Import project"}</button>
             </form>
-            <p className="text-muted text-xs leading-relaxed mt-3">Add a card image and/or a live demo link for any project in the list below — anything left blank falls back to GitHub's repo preview image, then an icon.</p>
+            <p className="text-muted text-xs leading-relaxed mt-3">Add a card image and/or a live demo link for any project in the list below — anything left blank falls back to GitHub&apos;s repo preview image, then an icon.</p>
             {status && <p className="mt-4 text-sm text-signal">{status}</p>}
           </div>
 
