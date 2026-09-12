@@ -5,7 +5,7 @@ export const profile = {
   location: "Hyderabad, India",
   email: "sreeshanthkonda2212@gmail.com",
   phone: "+91 9949282702",
-  linkedin: "https://linkedin.com/in/sreeshanth-konda",
+  linkedin: "https://www.linkedin.com/in/sreeshanth-konda-4963b9327",
   github: "https://github.com/ksree-2212",
   tagline:
     "Engineering student building real-time computer vision and deep learning systems — with a growing focus on AI governance and secure, responsible AI.",
