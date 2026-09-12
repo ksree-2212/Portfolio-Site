@@ -9,6 +9,8 @@ const projectSchema = new mongoose.Schema(
     stack: { type: [String], default: [] },
     highlights: { type: [String], default: [] },
     link: { type: String, default: "" },
+    demoUrl: { type: String, default: "" },
+    image: { type: String, default: "" },
     order: { type: Number, default: 0 },
   },
   { timestamps: true }

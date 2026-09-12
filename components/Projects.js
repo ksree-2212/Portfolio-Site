@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ScanReveal from "./ScanReveal";
 import { fallbackProjects } from "@/data/content";
-import { ArrowUpRight, ScanEye, BrainCircuit, BarChart3 } from "lucide-react";
+import { ArrowUpRight, Globe, ScanEye, BrainCircuit, BarChart3 } from "lucide-react";
 
 const API_URL = "/api/admin";
 
@@ -36,11 +36,36 @@ function useTilt(ref) {
   return { handleMouseMove, handleMouseLeave };
 }
 
+// GitHub auto-generates a social-preview image for every public repo
+// (the same one shown when the link is shared on Twitter/Discord).
+// Used as a fallback when no image has been manually uploaded for a
+// project — no manual work required, and it refreshes on its own as
+// the repo's stats/description change.
+function githubOgImage(link) {
+  if (!link) return null;
+  const match = link.match(/github\.com\/([^/]+)\/([^/]+?)(?:\.git)?\/?$/i);
+  if (!match) return null;
+  const [, owner, repo] = match;
+  return `https://opengraph.githubassets.com/1/${owner}/${repo}`;
+}
+
 function ProjectCard({ project, index }) {
   const cardRef = useRef(null);
   const { handleMouseMove, handleMouseLeave } = useTilt(cardRef);
   const visual = CATEGORY_VISUAL[project.category] || CATEGORY_VISUAL["Computer Vision"];
   const { Icon, color } = visual;
+
+  const ogSrc = githubOgImage(project.link);
+  // 0 = try the manually uploaded image, 1 = try GitHub preview, 2 = give up, show icon
+  const [imageStage, setImageStage] = useState(project.image ? 0 : ogSrc ? 1 : 2);
+  const currentSrc = imageStage === 0 ? project.image : imageStage === 1 ? ogSrc : null;
+
+  function handleImageError() {
+    setImageStage((stage) => {
+      if (stage === 0) return ogSrc ? 1 : 2;
+      return 2;
+    });
+  }
 
   return (
     <motion.div
@@ -70,15 +95,31 @@ function ProjectCard({ project, index }) {
             background: `linear-gradient(135deg, ${color}1A 0%, rgba(11,17,32,0.9) 70%)`,
           }}
         >
-          <div
-            className="absolute inset-0 opacity-40"
-            style={{
-              backgroundImage:
-                "linear-gradient(rgba(76,141,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(76,141,255,0.15) 1px, transparent 1px)",
-              backgroundSize: "18px 18px",
-            }}
-          />
-          <Icon size={38} style={{ color }} className="relative" strokeWidth={1.5} />
+          {currentSrc ? (
+            <>
+              <img
+                src={currentSrc}
+                alt=""
+                loading="lazy"
+                onError={handleImageError}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              {/* Darken slightly so the category badge stays readable over any image */}
+              <div className="absolute inset-0 bg-black/25" />
+            </>
+          ) : (
+            <>
+              <div
+                className="absolute inset-0 opacity-40"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(rgba(76,141,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(76,141,255,0.15) 1px, transparent 1px)",
+                  backgroundSize: "18px 18px",
+                }}
+              />
+              <Icon size={38} style={{ color }} className="relative" strokeWidth={1.5} />
+            </>
+          )}
           <span
             className="absolute top-3 left-3 font-mono text-[11px] px-2 py-1 rounded-md border"
             style={{ borderColor: `${color}55`, color, backgroundColor: `${color}14` }}
@@ -118,20 +159,33 @@ function ProjectCard({ project, index }) {
             ))}
           </div>
 
-          <a
-            href={project.link || "#"}
-            target={project.link ? "_blank" : undefined}
-            rel="noopener noreferrer"
-            className={`mt-4 text-signal text-sm font-medium inline-flex items-center gap-1.5 group ${
-              !project.link ? "pointer-events-none opacity-50" : ""
-            }`}
-          >
-            View project
-            <ArrowUpRight
-              size={14}
-              className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-            />
-          </a>
+          <div className="mt-4 flex items-center gap-4">
+            <a
+              href={project.link || "#"}
+              target={project.link ? "_blank" : undefined}
+              rel="noopener noreferrer"
+              className={`text-signal text-sm font-medium inline-flex items-center gap-1.5 group ${
+                !project.link ? "pointer-events-none opacity-50" : ""
+              }`}
+            >
+              View project
+              <ArrowUpRight
+                size={14}
+                className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              />
+            </a>
+            {project.demoUrl && (
+              <a
+                href={project.demoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted hover:text-amber text-sm font-medium inline-flex items-center gap-1.5 group transition-colors"
+              >
+                Live demo
+                <Globe size={13} className="transition-transform group-hover:rotate-12" />
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </motion.div>

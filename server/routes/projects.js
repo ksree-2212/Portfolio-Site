@@ -23,7 +23,7 @@ router.post("/", requireAdmin, async (req, res) => {
 // Protected — create a project by pulling details straight from a GitHub repo URL.
 // Body: { "repoUrl": "https://github.com/owner/repo", "confidence": 0.9 } (confidence optional)
 router.post("/from-github", requireAdmin, async (req, res) => {
-  const { repoUrl, confidence } = req.body;
+  const { repoUrl, confidence, demoUrl } = req.body;
 
   if (!repoUrl) {
     return res.status(400).json({ error: "repoUrl is required." });
@@ -71,6 +71,7 @@ router.post("/from-github", requireAdmin, async (req, res) => {
         repoData.topics?.length ? `Topics: ${repoData.topics.join(", ")}` : undefined,
       ].filter(Boolean),
       link: repoData.html_url,
+      demoUrl: demoUrl || "",
     });
 
     res.status(201).json(project);
@@ -81,6 +82,9 @@ router.post("/from-github", requireAdmin, async (req, res) => {
 
 // Protected — update an existing project.
 router.put("/:id", requireAdmin, async (req, res) => {
+  if (typeof req.body.image === "string" && req.body.image.length > 1_500_000) {
+    return res.status(413).json({ error: "Image is too large. Try a smaller image (under ~1MB)." });
+  }
   try {
     const project = await Project.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
