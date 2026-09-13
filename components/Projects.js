@@ -164,6 +164,8 @@ function ProjectCard({ project, index }) {
               href={project.link || "#"}
               target={project.link ? "_blank" : undefined}
               rel="noopener noreferrer"
+              data-detect
+              data-detect-label="open · view project"
               className={`text-signal text-sm font-medium inline-flex items-center gap-1.5 group ${
                 !project.link ? "pointer-events-none opacity-50" : ""
               }`}
@@ -179,6 +181,8 @@ function ProjectCard({ project, index }) {
                 href={project.demoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-detect
+                data-detect-label="open · live demo"
                 className="text-muted hover:text-amber text-sm font-medium inline-flex items-center gap-1.5 group transition-colors"
               >
                 Live demo
