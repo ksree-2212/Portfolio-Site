@@ -197,28 +197,41 @@ function ProjectCard({ project, index }) {
 }
 
 export default function Projects() {
-  const [projects, setProjects] = useState(fallbackProjects);
+  // null = still loading from the backend. Only fall back to the
+  // placeholder projects if the fetch actually fails or returns empty.
+  const [projects, setProjects] = useState(null);
   const [filter, setFilter] = useState("All");
 
   useEffect(() => {
-    if (!API_URL) return;
+    let cancelled = false;
+
     fetch(`${API_URL}/projects`)
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((data) => {
-        if (Array.isArray(data)) {
+        if (cancelled) return;
+        if (Array.isArray(data) && data.length > 0) {
           setProjects(
             data.map((project) => ({
               ...project,
               category: project.category || project.tag || "Computer Vision",
             }))
           );
+        } else {
+          setProjects(fallbackProjects);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        if (!cancelled) setProjects(fallbackProjects);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const filtered = useMemo(
-    () => (filter === "All" ? projects : projects.filter((p) => p.category === filter)),
+    () =>
+      !projects ? [] : filter === "All" ? projects : projects.filter((p) => p.category === filter),
     [projects, filter]
   );
 
@@ -259,7 +272,23 @@ export default function Projects() {
 
       <motion.div layout className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <AnimatePresence mode="popLayout">
-          {filtered.length > 0 ? (
+          {projects === null ? (
+            // Still fetching from the backend — show skeleton cards instead of
+            // a flash of placeholder projects or an empty section.
+            Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={`skeleton-${i}`}
+                className="glass-card rounded-lg overflow-hidden h-64 animate-pulse"
+              >
+                <div className="h-32 bg-panel2/40" />
+                <div className="p-6 space-y-3">
+                  <div className="h-4 w-2/3 bg-panel2/40 rounded" />
+                  <div className="h-3 w-full bg-panel2/30 rounded" />
+                  <div className="h-3 w-5/6 bg-panel2/30 rounded" />
+                </div>
+              </div>
+            ))
+          ) : filtered.length > 0 ? (
             filtered.map((project, i) => (
               <ProjectCard key={project.id || project.name} project={project} index={i} />
             ))
