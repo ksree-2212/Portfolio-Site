@@ -41,7 +41,6 @@ export default function DetectionCursor() {
       box.style.height = `${rect.height + pad * 2}px`;
       box.classList.add("locked");
       label.textContent = target.getAttribute("data-detect-label") || "object · 90%";
-      dot.style.opacity = "0";
     }
 
     function unlock() {
